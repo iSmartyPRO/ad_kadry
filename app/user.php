@@ -21,6 +21,7 @@ class user extends Model
         'position', 
         'department', 
         'company', 
+        'cn', 
         'email', 
         'password',
     ];

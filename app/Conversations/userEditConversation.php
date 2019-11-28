@@ -10,6 +10,7 @@ use BotMan\BotMan\Messages\Conversations\Conversation;
 use BotMan\Drivers\Telegram\Extensions\Keyboard;
 use BotMan\Drivers\Telegram\Extensions\KeyboardButton;
 use App\Http\Controllers\adUserController;
+use App\Http\Controllers\mailController;
 use App\user;
 
 class userEditConversation extends Conversation
@@ -45,19 +46,25 @@ class userEditConversation extends Conversation
                                 $action = $answer->getText();
                                 if($action == 'edit_position'){
                                     $this->ask("Введите новое значения для должности:", function(Answer $answer){
+                                        $position_old = $this->search_user->position;
                                         $position_new = $answer->getText();
                                         $this->search_user->position = $position_new;
                                         $this->search_user->save();
-                                        adUserController::updatePosition($this->search_user->nameEng,$position_new);
+                                        $who = user::where("telegram_id",$this->bot->getUser()->getId())->first();
+                                        adUserController::updatePosition($this->search_user->cn,$position_new);
+                                        mailController::changed_position((object)['nameRus' => $this->search_user->nameRus,'email' => $this->search_user->email,"position_old" => $position_old,"position_new" => $position_new,"who" => $who->nameRus]);
                                         $this->say("*ОБНОВЛЕННЫЕ ДАННЫЕ*\nФИО: ".$this->search_user->nameRus."\nДолжность: ".$this->search_user->position,["parse_mode"=>"markdown"]);
                                     });
                                 }
                                 elseif($action == 'edit_mobile'){
                                     $this->ask("Введите новое значения для номера мобильного телефона:", function(Answer $answer){
+                                        $mobile_old = $this->search_user->mobile;
                                         $mobile_new = $answer->getText();
                                         $this->search_user->mobile = $mobile_new;
                                         $this->search_user->save();
-                                        adUserController::updateMobile($this->search_user->nameEng,$mobile_new);
+                                        $who = user::where("telegram_id",$this->bot->getUser()->getId())->first()->nameRus;
+                                        adUserController::updateMobile($this->search_user->cn,$mobile_new);
+                                        mailController::changed_mobile((object)['nameRus' => $this->search_user->nameRus,'email' => $this->search_user->email,"mobile_old" => $mobile_old,"mobile_new" => $mobile_new, "who"=>$who]);
                                         $this->say("*ОБНОВЛЕННЫЕ ДАННЫЕ*\nФИО: ".$this->search_user->nameRus."\nМобильный: ".$this->search_user->mobile,["parse_mode"=>"markdown"]);
                                     });
                                 }

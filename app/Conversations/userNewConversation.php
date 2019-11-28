@@ -2,7 +2,6 @@
 
 namespace App\Conversations;
 
-use ___PHPSTORM_HELPERS\object;
 use Illuminate\Foundation\Inspiring;
 use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Outgoing\Question;
@@ -11,7 +10,10 @@ use BotMan\BotMan\Messages\Conversations\Conversation;
 use BotMan\Drivers\Telegram\Extensions\Keyboard;
 use BotMan\Drivers\Telegram\Extensions\KeyboardButton;
 use App\Http\Controllers\adUserController;
+use App\Http\Controllers\mailController;
 use App\request_new_user;
+use App\branch;
+use App\user;
 
 
 class userNewConversation extends Conversation
@@ -49,8 +51,9 @@ class userNewConversation extends Conversation
                                                 $this->user['department'] = $answer->getText();
                                                 $this->ask("Введите название должности (на русском языке):", function(Answer $answer){
                                                     $this->user['position'] = $answer->getText();
+                                                    $this->user['location_name'] = branch::where("shortcode",$this->user['location'])->first()->name;
                                                     $this->say("*ПРОВЕРКА ДАННЫХ:*\n".
-                                                    "Местоположение: ".$this->user['location']."\n".
+                                                    "Местоположение: ".$this->user['location_name']."\n".
                                                     "Фамилия (русс.): ".$this->user['last_name_rus']."\n".
                                                     "Имя (русс.): ".$this->user['first_name_rus']."\n".
                                                     "Фамилия (англ.): ".$this->user['last_name_eng']."\n".
@@ -64,7 +67,7 @@ class userNewConversation extends Conversation
                                                             Button::create("Отмена")->value("Отмен")
                                                     ]), function(Answer $answer){
                                                         if($answer->getText() == "Подтвердить"){
-                                                            $this->say("Вы подтвердили создание учетной записи");
+                                                            $this->say("Вы подтвердили создание учетной записи.\nВ ближайшее время оно будет рассмотрено.");
                                                             request_new_user::create([
                                                                 'adLocation' => $this->user['location'],
                                                                 'last_name_rus' => $this->user['last_name_rus'],
@@ -75,10 +78,14 @@ class userNewConversation extends Conversation
                                                                 'position' => $this->user['position'],
                                                                 'status' => 'request'
                                                                 ]);
+                                                                $user_from = user::where("telegram_id",$this->bot->getUser()->getId())->first();
+                                                            $this->user['from'] = $user_from->nameRus;
+                                                            $this->user['created_at'] = date("Y-m-d H:i:s");
+                                                            $data = $this->user;
+                                                            mailController::notify_about_request((object)$data);
                                                         }
                                                         elseif($answer->getText() == "Отменить"){
                                                             $this->say("Вы отменили создание учетной записи");
-
                                                         }
                                                         else {
                                                             $this->say("Вы ввели неправильную команду. Повторите все заново.");

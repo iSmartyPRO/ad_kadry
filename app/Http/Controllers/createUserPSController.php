@@ -7,17 +7,30 @@ use App\branch;
 
 class createUserPSController extends Controller
 {
-    public static function template($location_short_code,$last_name_rus,$first_name_rus,$last_name_eng,$first_name_eng,$department,$position){
-        $branch = branch::where("shortcode",$location_short_code)->first();
+    public static function mailGroups($location){
+        $branch = branch::where("id",1)->first();
+        $group_command = "";
+        if($branch->mail_group1){
+            $group_command .= 'Add-ADGroupMember -Identity "'.$branch->mail_group1.'" -Members $UserName'."\n";
+        }
+        if($branch->mail_group2){
+            $group_command .= 'Add-ADGroupMember -Identity "'.$branch->mail_group2.'" -Members $UserName'."\n";
+        }
+        if($branch->mail_group3){
+            $group_command .= 'Add-ADGroupMember -Identity "'.$branch->mail_group3.'" -Members $UserName'."\n";
+        }
+        return $group_command;
+    }
+    public static function create_script($last_name_rus,$first_name_rus,$last_name_eng,$first_name_eng,$department,$position,$location,$city,$postalCode,$address,$ou,$password){
         $script_content = '
-        Function New-VolhovUser([string]$DisplayNameRus, [string]$LastName, [string]$FirstName, [string]$Pass, [string]$Title, [string]$Department) {
+        Function New-User([string]$DisplayNameRus, [string]$LastName, [string]$FirstName, [string]$Pass, [string]$Title, [string]$Department, [string]$location, [string]$city, [string]$postalCode, [string]$address) {
             $UserName = $FirstName + "." + $LastName
             $DisplayNameEng = $FirstName + " " + $LastName
-            $UserPrincipalName = $UserName + "@gencoindustry.com"
+            $UserPrincipalName = $UserName + "@'.env("AD_DOMAIN").'"
             # Подключение к удаленному Exchange серверу с локального компьютера администратора
             Set-ExecutionPolicy RemoteSigned
             $UserCredential = Get-Credential
-            $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://exchange.gencoindustry.com/PowerShell/ -Authentication Kerberos -Credential $UserCredential
+            $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://'.env("EXCHANGE_HOST").'/PowerShell/ -Authentication Kerberos -Credential $UserCredential
             Import-PSSession $Session -DisableNameChecking
             # Создание почтового ящика
             New-Mailbox `
@@ -26,7 +39,7 @@ class createUserPSController extends Controller
                 -Password (ConvertTo-SecureString -String $Pass -AsPlainText -Force) `
                 -FirstName $FirstName `
                 -LastName $LastName `
-                -OrganizationalUnit "OU=Users,OU=Volhov,OU=Account,DC=gencoindustry,DC=com"
+                -OrganizationalUnit "'.$ou.'"
             # Назначение аттрибутов
             Set-ADUser `
                 -Identity $UserName `
@@ -34,26 +47,30 @@ class createUserPSController extends Controller
                     title=$Title; `
                     department=$Department; `
                     description=$DisplayNameRus; `
-                    company="ООО ""ГЕНДЖО"""; `
-                    physicalDeliveryOfficeName="Волхов (ГЕНДЖО)"; `
-                    streetAddress="'.$branch->address.'"; `
-                    l="г.Волхов" `
+                    company="'.env("COMPANY_NAME").'"; `
+                    physicalDeliveryOfficeName=$location; `
+                    streetAddress=$address; `
+                    postalCode=$postalCode; `
+                    l=$city `
                 }
             # Добавление основных групп пользователю
-            Add-ADGroupMember -Identity "CN=mail_All GENCO,OU=Groups,OU=IT_Group,OU=Account,DC=gencoindustry,DC=com" -Members $UserName
-            Add-ADGroupMember -Identity "CN=mail_All Volhov,OU=Groups,OU=IT_Group,OU=Account,DC=gencoindustry,DC=com" -Members $UserName
+            '.createUserPSController::mailGroups($location).'
             # Добавление фото для пользователя из папки D:\scripts\photos\ с названием файла содержащее имя пользователя
             # Set-UserPhoto -Identity $DisplayNameEng -PictureData ([System.IO.File]::ReadAllBytes("D:\scripts\photos\" + $UserName + ".jpg")) –Confirm:$false
         }
         
         ##### КАСТОМИЗАЦИЯ ДАННЫХ
-        New-VolhovUser `
+        New-User `
             -DisplayNameRus "'.$last_name_rus.' '.$first_name_rus.'" `
-            -LastName "Serapov" `
-            -FirstName "Sadirbek" `
-            -Pass "Ss06112019" `
-            -Title "Оператор пк (Склад)" `
-            -Department "Склад  (Волхов)"
+            -LastName "'.$last_name_eng.'" `
+            -FirstName "'.$first_name_eng.'" `
+            -Pass "'.$password.'" `
+            -Title "'.$position.'" `
+            -Department "'.$department.'" `
+            -location "'.$location.'" `
+            -city "'.$city.'" `
+            -address "'.$address.'" `
+            -postalCode "'.$postalCode.'"
         ';
         return $script_content;
     }

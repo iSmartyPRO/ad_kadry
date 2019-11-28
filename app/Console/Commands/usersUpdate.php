@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Adldap\Adldap;
 use App\user;
+use App\branch;
 
 class usersUpdate extends Command
 {
@@ -54,9 +55,8 @@ class usersUpdate extends Command
     public function handle()
     {
         user::query()->truncate();
-        $users_co = $this->get_ouUsers(env('AD_DN_CO'));
+        $users_co = $this->get_ouUsers(branch::where("shortcode","co")->first()->ad_dn);
         foreach ($users_co as $user) {
-            echo json_decode($user->info[0],true)['user_type'];
             user::create([
                 'telegram_id'   => json_decode($user->info[0],true)['telegram_id'],
                 'user_type'     => json_decode($user->info[0],true)['user_type'],
@@ -72,10 +72,11 @@ class usersUpdate extends Command
                 'position'      => $user->title[0],
                 'department'    => $user->department[0],
                 'company'       => $user->company[0],
+                'cn'            => $user->cn[0],
                 'email'         => $user->userPrincipalName[0],
                 ]);
             }
-            $users_volhov = $this->get_ouUsers(env('AD_DN_VOLHOV'));
+            $users_volhov = $this->get_ouUsers(branch::where("shortcode","volhov")->first()->ad_dn);
             foreach ($users_volhov as $user) {
                 user::create([
                     'telegram_id'   => json_decode($user->info[0],true)['telegram_id'],
@@ -92,8 +93,10 @@ class usersUpdate extends Command
                     'position'      => $user->title[0],
                     'department'    => $user->department[0],
                     'company'       => $user->company[0],
+                    'cn'            => $user->cn[0],
                     'email'         => $user->userPrincipalName[0],
                     ]);
                 }
+                echo "Updated!!\n";
     }
 }

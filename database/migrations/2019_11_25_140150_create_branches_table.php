@@ -21,6 +21,9 @@ class CreateBranchesTable extends Migration
             $table->string('city');
             $table->string('postalCode');
             $table->string('address');
+            $table->string('mail_group1')->nullable();
+            $table->string('mail_group2')->nullable();
+            $table->string('mail_group3')->nullable();
             $table->timestamps();
         });
     }
