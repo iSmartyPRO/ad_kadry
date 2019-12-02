@@ -57,9 +57,13 @@ class usersUpdate extends Command
         user::query()->truncate();
         $users_co = $this->get_ouUsers(branch::where("shortcode","co")->first()->ad_dn);
         foreach ($users_co as $user) {
+            empty($info);
+            $info = json_decode($user->info[0], true);
+            $telegram_id        = $info['telegram_id'] ? $info['telegram_id'] : null;
+            $user_type          = @$info['user_type'] ? $info['user_type'] : null;
             user::create([
-                'telegram_id'   => json_decode($user->info[0],true)['telegram_id'],
-                'user_type'     => json_decode($user->info[0],true)['user_type'],
+                'telegram_id'   => $telegram_id,
+                'user_type'     => $user_type,
                 'nameRus'       => $user->description[0],
                 'nameEng'       => $user->displayName[0],
                 'location'      => $user->physicalDeliveryOfficeName[0],
@@ -75,12 +79,20 @@ class usersUpdate extends Command
                 'cn'            => $user->cn[0],
                 'email'         => $user->userPrincipalName[0],
                 ]);
+               
             }
+
+
+
             $users_volhov = $this->get_ouUsers(branch::where("shortcode","volhov")->first()->ad_dn);
             foreach ($users_volhov as $user) {
+                empty($info);
+                $info = json_decode($user->info[0], true);
+                $telegram_id        = $info['telegram_id'] ? $info['telegram_id'] : null;
+                $user_type          = @$info['user_type'] ? $info['user_type'] : null;
                 user::create([
-                    'telegram_id'   => json_decode($user->info[0],true)['telegram_id'],
-                    'user_type'    => json_decode($user->info[0],true)['user_type'],
+                    'telegram_id'   => $telegram_id,
+                    'user_type'    => $user_type,
                     'nameRus'       => $user->description[0],
                     'nameEng'       => $user->displayName[0],
                     'location'      => $user->physicalDeliveryOfficeName[0],

@@ -49,7 +49,7 @@ class adUserController extends Controller
         $ad = new Adldap();
         $config = [  
           'hosts'    => [env("AD_HOST")],
-          'base_dn'  => 'OU=Users,OU=CO,OU=Account,DC=gencoindustry,DC=com',
+          'base_dn'  => 'OU=Account,DC=gencoindustry,DC=com',
           'username' => env("AD_USER"),
           'password' => env("AD_PASS"),
         ];
@@ -63,7 +63,7 @@ class adUserController extends Controller
         $ad = new Adldap();
         $config = [  
           'hosts'    => [env("AD_HOST")],
-          'base_dn'  => 'OU=Users,OU=CO,OU=Account,DC=gencoindustry,DC=com',
+          'base_dn'  => 'OU=Account,DC=gencoindustry,DC=com',
           'username' => env("AD_USER"),
           'password' => env("AD_PASS"),
         ];

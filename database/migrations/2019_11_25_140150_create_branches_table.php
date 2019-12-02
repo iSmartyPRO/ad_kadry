@@ -15,15 +15,15 @@ class CreateBranchesTable extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('shortcode');
-            $table->string('name');
-            $table->string('ad_dn');
-            $table->string('city');
-            $table->string('postalCode');
-            $table->string('address');
-            $table->string('mail_group1')->nullable();
-            $table->string('mail_group2')->nullable();
-            $table->string('mail_group3')->nullable();
+            $table->text('shortcode');
+            $table->text('name');
+            $table->text('ad_dn');
+            $table->text('city');
+            $table->text('postalCode');
+            $table->text('address');
+            $table->text('mail_group1')->nullable();
+            $table->text('mail_group2')->nullable();
+            $table->text('mail_group3')->nullable();
             $table->timestamps();
         });
     }

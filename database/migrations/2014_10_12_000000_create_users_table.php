@@ -15,22 +15,22 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('telegram_id')->nullable();
+            $table->text('telegram_id')->nullable();
             $table->string('user_type')->nullable();
-            $table->string('nameRus')->nullable();
-            $table->string('nameEng')->nullable();
-            $table->string('adLocation')->nullable();
-            $table->string('location')->nullable();
-            $table->string('postalCode')->nullable();
-            $table->string('address')->nullable();
-            $table->string('city')->nullable();
-            $table->string('mobile')->nullable();
-            $table->string('extention')->nullable();
-            $table->string('position')->nullable();
-            $table->string('department')->nullable();
-            $table->string('company')->nullable();
-            $table->string('cn')->nullable();
-            $table->string('email')->nullable();
+            $table->text('nameRus')->nullable();
+            $table->text('nameEng')->nullable();
+            $table->text('adLocation')->nullable();
+            $table->text('location')->nullable();
+            $table->text('postalCode')->nullable();
+            $table->text('address')->nullable();
+            $table->text('city')->nullable();
+            $table->text('mobile')->nullable();
+            $table->text('extention')->nullable();
+            $table->text('position')->nullable();
+            $table->text('department')->nullable();
+            $table->text('company')->nullable();
+            $table->text('cn')->nullable();
+            $table->text('email')->nullable();
             $table->timestamps();
         });
     }

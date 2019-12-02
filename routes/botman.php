@@ -140,7 +140,10 @@ $botman->hears("Редактировать", function($bot){
 
 $botman->hears("Пользователи ЦО", function($bot){
     if(isRegistered($bot)){
-        $bot->reply("*ПОЛЬЗОВАТЕЛИ ЦЕНТРАЛЬНОГО ОФИСА*\n\n".userController::get_users_format1('co'), ["parse_mode"=>"markdown"]);
+        $bot->reply("*ПОЛЬЗОВАТЕЛИ ЦЕНТРАЛЬНОГО ОФИСА*\n\n",["parse_mode"=>"markdown"]);
+        foreach (userController::get_users_format1('co') as $user){
+            $bot->reply($user, ["parse_mode"=>"markdown"]);
+        }
     }
     else {
         gotoRegistration($bot);
@@ -148,7 +151,10 @@ $botman->hears("Пользователи ЦО", function($bot){
 });
 $botman->hears("Пользователи Волхов", function($bot){
     if(isRegistered($bot)){
-        $bot->reply("*ПОЛЬЗОВАТЕЛИ ОБЪЕКТА ВОЛХОВ:*\n\n".userController::get_users_format1('volhov'), ["parse_mode"=>"markdown"]);
+        $bot->reply("*ПОЛЬЗОВАТЕЛИ ОБЪЕКТА ВОЛХОВ*\n\n",["parse_mode"=>"markdown"]);
+        foreach (userController::get_users_format1('volhov') as $user){
+            $bot->reply($user, ["parse_mode"=>"markdown"]);
+        }
     }
     else {
         gotoRegistration($bot);

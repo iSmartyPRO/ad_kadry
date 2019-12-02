@@ -15,14 +15,14 @@ class CreateRequestNewUsersTable extends Migration
     {
         Schema::create('request_new_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('adLocation');
-            $table->string('last_name_rus');
-            $table->string('first_name_rus');
-            $table->string('last_name_eng');
-            $table->string('first_name_eng');
-            $table->string('department');
-            $table->string('position');
-            $table->string('status');
+            $table->text('adLocation');
+            $table->text('last_name_rus');
+            $table->text('first_name_rus');
+            $table->text('last_name_eng');
+            $table->text('first_name_eng');
+            $table->text('department');
+            $table->text('position');
+            $table->text('status');
             $table->timestamps();
         });
     }
